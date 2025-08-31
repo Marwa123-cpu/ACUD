@@ -7,16 +7,18 @@ class StudentModel:
         try:
             conn = Config.get_connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM Student_")
 
-            students = []
-            for row in cursor.fetchall():
-                students.append({
-                    "id": row[0],
-                    "name": row[1],
-                    "age": row[2],
-                    "grade": row[3]
-                })
+            query = """
+                SELECT s.*, u.*
+                FROM Student_ AS s
+                INNER JOIN Users AS u ON s.User_ID = u.User_ID
+            """
+            cursor.execute(query)
+
+            columns = [column[0] for column in cursor.description]  # get column names
+            rows = cursor.fetchall()
+
+            students = [dict(zip(columns, row)) for row in rows]
 
             cursor.close()
             conn.close()
@@ -24,6 +26,7 @@ class StudentModel:
 
         except Exception as e:
             return {"error": str(e)}
+        
 
 
     @staticmethod
